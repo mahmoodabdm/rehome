@@ -1,4 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-body { font-family: Inter, system-ui, sans-serif; background: #F8FAF9; }
+/* Minimal global reset — safe to keep, does NOT require Tailwind to load.
+   If Tailwind is installed, the @tailwind directives are harmless;
+   if not, PostCSS will simply skip them. All real styling is inline. */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  background: #f8faf9;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+select,
+input,
+textarea {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}

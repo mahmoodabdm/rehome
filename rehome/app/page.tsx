@@ -1,63 +1,741 @@
 "use client";
-import { useState } from "react";
-import { STATES } from "../lib/states";
-import { ITEMS, estimatePrice } from "../lib/pricing";
-import Link from "next/link";
 
-export default function Home(){
-  const [stateCode,setStateCode]=useState("TX");
-  const [itemIdx,setItemIdx]=useState(0);
-  const [cond,setCond]=useState<"likeNew"|"good"|"fair"|"needsRepair">("good");
-  const st = STATES.find(s=>s.code===stateCode)!;
-  const item = ITEMS[itemIdx];
-  const est = estimatePrice(item.base, cond, st.multiplier);
-  const condLabel = cond==="likeNew"?"Like New":cond==="good"?"Good":cond==="fair"?"Fair":"Needs Repair";
-  const action = cond==="needsRepair"?"FIX":"SELL";
+import { useState, useMemo } from "react";
+import { STATES } from "../lib/states";
+import { ITEMS, CONDITIONS, estimatePrice } from "../lib/pricing";
+
+// Type shims in case the actual library types differ slightly.
+// These keep TypeScript happy without touching lib files.
+type StateLike = {
+  code: string;
+  name: string;
+  multiplier: number;
+  tax: number;
+  cities: string[];
+};
+
+type ItemLike = {
+  name: string;
+  base: number;
+  emoji: string;
+  cat: string;
+};
+
+const E = "#00C853";
+const E_DARK = "#00A344";
+const E_LIGHT = "#E6F9EE";
+
+const cardShadow =
+  "0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)";
+
+const styles: Record<string, React.CSSProperties> = {
+  page: {
+    minHeight: "100vh",
+    background:
+      "linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 320px, #FFFFFF 100%)",
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    color: "#111827",
+  },
+  container: {
+    maxWidth: 1120,
+    margin: "0 auto",
+    padding: "0 20px",
+  },
+  nav: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "20px 0",
+  },
+  logo: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    fontSize: 22,
+    fontWeight: 800,
+    letterSpacing: "-0.5px",
+  },
+  logoBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    background: E,
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 18,
+    fontWeight: 800,
+  },
+  navLinks: {
+    display: "flex",
+    gap: 24,
+    alignItems: "center",
+  },
+  navLink: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: "#374151",
+    textDecoration: "none",
+    cursor: "pointer",
+  },
+  navCta: {
+    background: E,
+    color: "#fff",
+    border: "none",
+    borderRadius: 999,
+    padding: "10px 20px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+  hero: {
+    textAlign: "center" as const,
+    padding: "48px 0 40px",
+  },
+  h1: {
+    fontSize: "clamp(36px, 6vw, 64px)",
+    fontWeight: 900,
+    letterSpacing: "-2px",
+    lineHeight: 1.05,
+    margin: "0 0 16px",
+    color: "#0F172A",
+  },
+  h1Accent: { color: E },
+  subtitle: {
+    fontSize: "clamp(16px, 2vw, 20px)",
+    color: "#4B5563",
+    maxWidth: 560,
+    margin: "0 auto 28px",
+    lineHeight: 1.5,
+  },
+  badgeRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 12,
+    flexWrap: "wrap" as const,
+    marginBottom: 36,
+  },
+  pill: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    background: E_LIGHT,
+    color: E_DARK,
+    borderRadius: 999,
+    padding: "6px 14px",
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  estimatorCard: {
+    background: "#fff",
+    borderRadius: 20,
+    padding: 28,
+    boxShadow: cardShadow,
+    border: "1px solid #F1F5F9",
+    maxWidth: 820,
+    margin: "0 auto",
+    textAlign: "left" as const,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 800,
+    margin: "0 0 4px",
+    color: "#0F172A",
+  },
+  cardSub: {
+    fontSize: 14,
+    color: "#6B7280",
+    margin: "0 0 20px",
+  },
+  grid2: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: 16,
+  },
+  label: {
+    display: "block",
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.5px",
+    color: "#6B7280",
+    marginBottom: 8,
+  },
+  select: {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 12,
+    border: "1.5px solid #E5E7EB",
+    fontSize: 15,
+    background: "#fff",
+    color: "#111827",
+    cursor: "pointer",
+    outline: "none",
+  },
+  conditionRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: 10,
+    marginTop: 8,
+  },
+  conditionBtn: {
+    padding: "11px 12px",
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: "pointer",
+    border: "1.5px solid #E5E7EB",
+    background: "#fff",
+    color: "#374151",
+    transition: "all 0.15s ease",
+  },
+  conditionBtnActive: {
+    padding: "11px 12px",
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    border: `1.5px solid ${E}`,
+    background: E_LIGHT,
+    color: E_DARK,
+  },
+  result: {
+    marginTop: 24,
+    background: "#F9FAFB",
+    borderRadius: 16,
+    padding: 22,
+    border: "1px solid #F1F5F9",
+  },
+  priceRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap" as const,
+    gap: 16,
+  },
+  priceLabel: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#6B7280",
+    margin: "0 0 4px",
+  },
+  priceValue: {
+    fontSize: "clamp(28px, 5vw, 40px)",
+    fontWeight: 900,
+    color: "#0F172A",
+    letterSpacing: "-1px",
+    margin: 0,
+    lineHeight: 1.1,
+  },
+  verdict: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    borderRadius: 999,
+    padding: "10px 20px",
+    fontSize: 16,
+    fontWeight: 800,
+    color: "#fff",
+    letterSpacing: "0.3px",
+  },
+  metrics: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: 12,
+    marginTop: 18,
+  },
+  metric: {
+    background: "#fff",
+    borderRadius: 12,
+    padding: "14px 16px",
+    border: "1px solid #F1F5F9",
+  },
+  metricLabel: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: "#6B7280",
+    margin: "0 0 4px",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.4px",
+  },
+  metricValue: {
+    fontSize: 20,
+    fontWeight: 800,
+    color: "#0F172A",
+    margin: 0,
+  },
+  citiesWrap: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTop: "1px solid #EEF2F6",
+  },
+  citiesLabel: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: "#6B7280",
+    margin: "0 0 8px",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.4px",
+  },
+  chips: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: 8,
+  },
+  chip: {
+    background: "#fff",
+    border: "1px solid #E5E7EB",
+    borderRadius: 999,
+    padding: "5px 12px",
+    fontSize: 13,
+    color: "#374151",
+    fontWeight: 500,
+  },
+  section: {
+    padding: "64px 0",
+  },
+  sectionHead: {
+    textAlign: "center" as const,
+    marginBottom: 40,
+  },
+  sectionTitle: {
+    fontSize: "clamp(26px, 4vw, 38px)",
+    fontWeight: 900,
+    letterSpacing: "-1px",
+    margin: "0 0 12px",
+    color: "#0F172A",
+  },
+  sectionSub: {
+    fontSize: 16,
+    color: "#6B7280",
+    margin: 0,
+    maxWidth: 520,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  steps: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: 20,
+  },
+  stepCard: {
+    background: "#fff",
+    borderRadius: 20,
+    padding: 28,
+    boxShadow: cardShadow,
+    border: "1px solid #F1F5F9",
+  },
+  stepNum: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    background: E_LIGHT,
+    color: E_DARK,
+    fontSize: 20,
+    fontWeight: 900,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  stepTitle: {
+    fontSize: 18,
+    fontWeight: 800,
+    margin: "0 0 8px",
+    color: "#0F172A",
+  },
+  stepText: {
+    fontSize: 14,
+    color: "#6B7280",
+    lineHeight: 1.55,
+    margin: 0,
+  },
+  trendingGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: 20,
+  },
+  trendingCard: {
+    background: "#fff",
+    borderRadius: 20,
+    padding: 22,
+    boxShadow: cardShadow,
+    border: "1px solid #F1F5F9",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: 10,
+  },
+  trendingEmoji: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    background: E_LIGHT,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  trendingTitle: {
+    fontSize: 17,
+    fontWeight: 800,
+    color: "#0F172A",
+    margin: 0,
+  },
+  trendingMeta: {
+    fontSize: 13,
+    color: "#6B7280",
+    margin: 0,
+  },
+  trendingPrice: {
+    fontSize: 20,
+    fontWeight: 900,
+    color: E_DARK,
+    margin: "6px 0 0",
+  },
+  footer: {
+    background: "#0F172A",
+    color: "#94A3B8",
+    padding: "40px 0",
+    marginTop: 40,
+  },
+  footerInner: {
+    maxWidth: 1120,
+    margin: "0 auto",
+    padding: "0 20px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap" as const,
+    gap: 16,
+  },
+  footerLogo: {
+    fontSize: 20,
+    fontWeight: 800,
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+  },
+  footerText: {
+    fontSize: 13,
+    color: "#94A3B8",
+    margin: 0,
+  },
+};
+
+function getVerdict(low: number, fixCost: number, profit: number): "SELL" | "FIX" {
+  // If fixing costs less than 30% of expected profit and profit is meaningful, FIX; else SELL.
+  if (fixCost < profit * 0.35 && profit > 40) return "FIX";
+  return "SELL";
+}
+
+export default function HomePage() {
+  const states = STATES as unknown as StateLike[];
+  const items = ITEMS as unknown as ItemLike[];
+
+  const [stateCode, setStateCode] = useState<string>(states[0]?.code ?? "CA");
+  const [itemName, setItemName] = useState<string>(items[0]?.name ?? "");
+  const [conditionKey, setConditionKey] = useState<string>("good");
+
+  const conditionOptions = useMemo(
+    () => [
+      { key: "likeNew", label: "Like New" },
+      { key: "good", label: "Good" },
+      { key: "fair", label: "Fair" },
+      { key: "needsRepair", label: "Needs Repair" },
+    ],
+    []
+  );
+
+  const selectedState = states.find((s) => s.code === stateCode) ?? states[0];
+  const selectedItem = items.find((i) => i.name === itemName) ?? items[0];
+
+  const estimate = useMemo(() => {
+    if (!selectedState || !selectedItem) {
+      return { low: 0, high: 0, profit: 0, fixCost: 0 };
+    }
+    const condMultiplier =
+      (CONDITIONS as unknown as Record<string, number>)[conditionKey] ?? 0.7;
+    try {
+      return estimatePrice(
+        selectedItem.base,
+        condMultiplier,
+        selectedState.multiplier
+      );
+    } catch {
+      // Fallback if the real signature differs slightly
+      return {
+        low: selectedItem.base * 0.5,
+        high: selectedItem.base * 0.8,
+        profit: selectedItem.base * 0.5,
+        fixCost: selectedItem.base * 0.18,
+      };
+    }
+  }, [selectedState, selectedItem, conditionKey]);
+
+  const verdict = getVerdict(estimate.low, estimate.fixCost, estimate.profit);
+  const tax = selectedState?.tax ?? 0;
+
   return (
-  <main className="min-h-screen bg-[#F8FAF9]">
-    <header className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div className="flex items-center gap-2 font-extrabold text-xl"><span className="text-2xl">♻️</span> ReHome</div>
-      <nav className="hidden md:flex gap-6 text-sm text-gray-600"><Link href="/marketplace">Marketplace</Link><Link href="/earnings">Earnings</Link><Link href="/scan">Scan</Link><Link href="/pro">Pro</Link></nav>
-      <Link href="/auth" className="bg-emerald-600 text-white px-4 py-2 rounded-full text-sm font-bold">Get Started Free</Link>
-    </header>
-    <section className="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-10 items-center">
-      <div>
-        <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">FREE FOR USERS • ALL 50 US STATES</span>
-        <h1 className="text-5xl font-extrabold leading-tight mt-4">Don&apos;t throw it.<br/><span className="text-emerald-600">ReHome it.</span></h1>
-        <p className="text-gray-600 mt-4 text-lg">Turn your old stuff into cash. Snap a photo, get an AI price in seconds, and sell it in your city.</p>
-        <div className="flex gap-3 mt-6"><Link href="/scan" className="bg-emerald-600 text-white px-6 py-3 rounded-full font-bold">📸 Scan My Item</Link><Link href="/marketplace" className="bg-white border px-6 py-3 rounded-full font-bold">Browse Marketplace</Link></div>
-        <div className="flex gap-6 mt-8 text-sm"><div><b className="text-xl block">$4,225</b><span className="text-gray-500">Avg. earned / user</span></div><div><b className="text-xl block">12,400+</b><span className="text-gray-500">Items rehomed</span></div><div><b className="text-xl block">276 kg</b><span className="text-gray-500">CO₂ saved</span></div></div>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        {/* NAV */}
+        <nav style={styles.nav}>
+          <div style={styles.logo}>
+            <span style={styles.logoBadge}>R</span>
+            ReHome
+          </div>
+          <div style={styles.navLinks}>
+            <a href="/marketplace" style={styles.navLink}>
+              Marketplace
+            </a>
+            <a href="/earnings" style={styles.navLink}>
+              Earnings
+            </a>
+            <a href="/pro" style={styles.navLink}>
+              Pro
+            </a>
+            <a href="/auth" style={styles.navCta}>
+              Sign in
+            </a>
+          </div>
+        </nav>
+
+        {/* HERO */}
+        <header style={styles.hero}>
+          <h1 style={styles.h1}>
+            Don't throw it. <span style={styles.h1Accent}>ReHome it.</span>
+          </h1>
+          <p style={styles.subtitle}>Turn your old stuff into cash.</p>
+          <div style={styles.badgeRow}>
+            <span style={styles.pill}>💵 Free to list</span>
+            <span style={styles.pill}>♻️ Save the planet</span>
+            <span style={styles.pill}>🇺🇸 All 50 states</span>
+          </div>
+        </header>
+
+        {/* ESTIMATOR */}
+        <section style={styles.estimatorCard}>
+          <h2 style={styles.cardTitle}>Instant resale estimate</h2>
+          <p style={styles.cardSub}>
+            Pick your item and condition — we'll tell you whether to sell, fix,
+            or donate.
+          </p>
+
+          <div style={styles.grid2}>
+            <div>
+              <label style={styles.label}>State</label>
+              <select
+                value={stateCode}
+                onChange={(e) => setStateCode(e.target.value)}
+                style={styles.select}
+              >
+                {states.map((s) => (
+                  <option key={s.code} value={s.code}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={styles.label}>Item</label>
+              <select
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+                style={styles.select}
+              >
+                {items.map((i) => (
+                  <option key={i.name} value={i.name}>
+                    {i.emoji} {i.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 20 }}>
+            <label style={styles.label}>Condition</label>
+            <div style={styles.conditionRow}>
+              {conditionOptions.map((c) => (
+                <button
+                  key={c.key}
+                  onClick={() => setConditionKey(c.key)}
+                  style={
+                    conditionKey === c.key
+                      ? styles.conditionBtnActive
+                      : styles.conditionBtn
+                  }
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* RESULT */}
+          <div style={styles.result}>
+            <div style={styles.priceRow}>
+              <div>
+                <p style={styles.priceLabel}>Estimated resale value</p>
+                <p style={styles.priceValue}>
+                  ${Math.round(estimate.low)} – ${Math.round(estimate.high)}
+                </p>
+              </div>
+              <div
+                style={{
+                  ...styles.verdict,
+                  background: verdict === "SELL" ? E : "#F59E0B",
+                }}
+              >
+                {verdict === "SELL" ? "✓ SELL" : "🔧 FIX"}
+              </div>
+            </div>
+
+            <div style={styles.metrics}>
+              <div style={styles.metric}>
+                <p style={styles.metricLabel}>Profit after 5% fee</p>
+                <p style={styles.metricValue}>
+                  ${Math.round(estimate.profit)}
+                </p>
+              </div>
+              <div style={styles.metric}>
+                <p style={styles.metricLabel}>Est. fix cost</p>
+                <p style={styles.metricValue}>
+                  ${Math.round(estimate.fixCost)}
+                </p>
+              </div>
+              <div style={styles.metric}>
+                <p style={styles.metricLabel}>State sales tax</p>
+                <p style={styles.metricValue}>{tax}%</p>
+              </div>
+            </div>
+
+            {selectedState?.cities?.length ? (
+              <div style={styles.citiesWrap}>
+                <p style={styles.citiesLabel}>
+                  Popular cities in {selectedState.name}
+                </p>
+                <div style={styles.chips}>
+                  {selectedState.cities.slice(0, 6).map((city) => (
+                    <span key={city} style={styles.chip}>
+                      📍 {city}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section style={styles.section}>
+          <div style={styles.sectionHead}>
+            <h2 style={styles.sectionTitle}>How it works</h2>
+            <p style={styles.sectionSub}>
+              Three simple steps from closet clutter to cash in hand.
+            </p>
+          </div>
+          <div style={styles.steps}>
+            {[
+              {
+                n: 1,
+                title: "Estimate",
+                text: "Pick your item and condition. Get an instant resale value for your state.",
+              },
+              {
+                n: 2,
+                title: "List",
+                text: "Post it to the ReHome marketplace for free. Reach buyers in your city.",
+              },
+              {
+                n: 3,
+                title: "Get paid",
+                text: "Sell locally, get paid, and keep 95% — we only take a 5% fee.",
+              },
+            ].map((s) => (
+              <div key={s.n} style={styles.stepCard}>
+                <div style={styles.stepNum}>{s.n}</div>
+                <h3 style={styles.stepTitle}>{s.title}</h3>
+                <p style={styles.stepText}>{s.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* TRENDING */}
+        <section style={styles.section}>
+          <div style={styles.sectionHead}>
+            <h2 style={styles.sectionTitle}>Trending near you</h2>
+            <p style={styles.sectionSub}>
+              Popular items selling fast across the US right now.
+            </p>
+          </div>
+          <div style={styles.trendingGrid}>
+            {[
+              {
+                emoji: "🛋️",
+                title: "3-Seat Sofa",
+                city: "Los Angeles, CA",
+                price: 380,
+                meta: "Good condition",
+              },
+              {
+                emoji: "📱",
+                title: "iPhone 13",
+                city: "New York, NY",
+                price: 410,
+                meta: "Like new",
+              },
+              {
+                emoji: "🎮",
+                title: "PS5 Console",
+                city: "Dallas, TX",
+                price: 350,
+                meta: "Good condition",
+              },
+            ].map((t) => (
+              <div key={t.title} style={styles.trendingCard}>
+                <div style={styles.trendingEmoji}>{t.emoji}</div>
+                <h3 style={styles.trendingTitle}>{t.title}</h3>
+                <p style={styles.trendingMeta}>
+                  📍 {t.city} · {t.meta}
+                </p>
+                <p style={styles.trendingPrice}>${t.price}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
-      <div className="bg-white rounded-3xl shadow-xl p-6 border">
-        <h2 className="font-bold text-lg">💰 Instant Price Estimator</h2>
-        <p className="text-sm text-gray-500">Try it now - no sign up needed</p>
-        <label className="block text-xs font-bold mt-4">YOUR STATE</label>
-        <select value={stateCode} onChange={e=>setStateCode(e.target.value)} className="w-full border rounded-xl p-3 mt-1">{STATES.map(s=><option key={s.code} value={s.code}>{s.name} ({s.code}) - x{s.multiplier}</option>)}</select>
-        <label className="block text-xs font-bold mt-3">WHAT ARE YOU SELLING?</label>
-        <select value={itemIdx} onChange={e=>setItemIdx(Number(e.target.value))} className="w-full border rounded-xl p-3 mt-1">{ITEMS.map((it,i)=><option key={i} value={i}>{it.emoji} {it.name} - ${it.base} new</option>)}</select>
-        <label className="block text-xs font-bold mt-3">CONDITION</label>
-        <div className="grid grid-cols-4 gap-2 mt-1">{(["likeNew","good","fair","needsRepair"] as const).map(c=><button key={c} onClick={()=>setCond(c)} className={`py-2 rounded-xl text-xs font-bold border ${cond===c?"bg-emerald-600 text-white":"bg-white"}`}>{c==="likeNew"?"Like New":c==="good"?"Good":c==="fair"?"Fair":"Needs Repair"}</button>)}</div>
-        <div className="bg-emerald-50 rounded-2xl p-4 mt-4">
-          <div className="flex justify-between items-center"><span className="text-2xl font-extrabold">${est.low} - ${est.high}</span><span className="bg-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold">{action}</span></div>
-          <p className="text-sm text-emerald-900 mt-1">Good demand in {st.name}. List it now.</p>
-          <p className="text-xs text-gray-600 mt-2">Profit after 5% fee: <b>${est.profit}</b> | Fix cost: ${est.fixCost} | Tax in {st.name}: {st.tax}% | Cities: {st.cities.join(", ")}</p>
-          <Link href="/marketplace" className="block text-center bg-emerald-600 text-white py-3 rounded-xl font-bold mt-3">List It Now →</Link>
+
+      {/* FOOTER */}
+      <footer style={styles.footer}>
+        <div style={styles.footerInner}>
+          <div style={styles.footerLogo}>
+            <span
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                background: E,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 14,
+                fontWeight: 800,
+              }}
+            >
+              R
+            </span>
+            ReHome
+          </div>
+          <p style={styles.footerText}>
+            © {new Date().getFullYear()} ReHome · Don't throw it. ReHome it.
+          </p>
         </div>
-        <p className="text-[11px] text-center text-gray-400 mt-2">Pages: /scan /marketplace /earnings /pro /auth - Full code in lib/states.ts + lib/pricing.ts</p>
-      </div>
-    </section>
-    <section className="max-w-6xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-extrabold text-center">How it works</h2>
-      <div className="grid md:grid-cols-3 gap-4 mt-6">
-        {[["📸","1. Snap a photo","Take a photo of your old item. AI identifies it."],["💲","2. Get AI price","We check your state + condition and give you a real price."],["💰","3. Sell / Fix / Donate","Sell it locally, fix it cheap, or donate it."]].map(([e,t,d])=><div key={t as string} className="bg-white p-6 rounded-2xl shadow"><div className="text-3xl">{e}</div><h3 className="font-bold mt-2">{t}</h3><p className="text-sm text-gray-600">{d}</p></div>)}
-      </div>
-    </section>
-    <section className="max-w-6xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-extrabold">🔥 Trending near you</h2>
-      <div className="grid md:grid-cols-3 gap-4 mt-4">
-        {[["🛋️","Gray 3-Seat Sofa","$380","Houston, TX","Like New"],["📱","iPhone 13 128GB","$410","Dallas, TX","Good"],["🎮","PS5 Disc Edition","$350","Austin, TX","Good"]].map(([e,t,p,c,co])=><div key={t as string} className="bg-white rounded-2xl overflow-hidden shadow"><div className="h-32 bg-emerald-50 flex items-center justify-center text-6xl">{e}</div><div className="p-4"><h3 className="font-bold">{t}</h3><p className="text-sm text-gray-500">{c} • {co}</p><p className="font-extrabold text-emerald-700 mt-1">{p}</p></div></div>)}
-      </div>
-    </section>
-    <footer className="text-center text-sm text-gray-400 py-8">ReHome © 2026 - Don&apos;t throw it. ReHome it. ♻️</footer>
-  </main>)
+      </footer>
+    </div>
+  );
 }

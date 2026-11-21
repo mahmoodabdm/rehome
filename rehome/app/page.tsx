@@ -4,8 +4,6 @@ import { useState, useMemo } from "react";
 import { STATES } from "../lib/states";
 import { ITEMS, CONDITIONS, estimatePrice } from "../lib/pricing";
 
-// Type shims in case the actual library types differ slightly.
-// These keep TypeScript happy without touching lib files.
 type StateLike = {
   code: string;
   name: string;
@@ -24,18 +22,21 @@ type ItemLike = {
 const E = "#00C853";
 const E_DARK = "#00A344";
 const E_LIGHT = "#E6F9EE";
+const DARK = "#0F172A";
 
 const cardShadow =
   "0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)";
+const cardShadowHover =
+  "0 8px 32px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)";
 
 const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: "100vh",
     background:
-      "linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 320px, #FFFFFF 100%)",
+      "linear-gradient(180deg, #F0FDF4 0%, #F8FAF9 320px, #F8FAF9 100%)",
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    color: "#111827",
+    color: DARK,
   },
   container: {
     maxWidth: 1120,
@@ -55,6 +56,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 22,
     fontWeight: 800,
     letterSpacing: "-0.5px",
+    color: DARK,
+    textDecoration: "none",
   },
   logoBadge: {
     width: 34,
@@ -89,6 +92,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     fontWeight: 700,
     cursor: "pointer",
+    textDecoration: "none",
+    display: "inline-block",
   },
   hero: {
     textAlign: "center" as const,
@@ -100,7 +105,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: "-2px",
     lineHeight: 1.05,
     margin: "0 0 16px",
-    color: "#0F172A",
+    color: DARK,
   },
   h1Accent: { color: E },
   subtitle: {
@@ -142,7 +147,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 20,
     fontWeight: 800,
     margin: "0 0 4px",
-    color: "#0F172A",
+    color: DARK,
   },
   cardSub: {
     fontSize: 14,
@@ -170,9 +175,10 @@ const styles: Record<string, React.CSSProperties> = {
     border: "1.5px solid #E5E7EB",
     fontSize: 15,
     background: "#fff",
-    color: "#111827",
+    color: DARK,
     cursor: "pointer",
     outline: "none",
+    boxSizing: "border-box" as const,
   },
   conditionRow: {
     display: "grid",
@@ -224,7 +230,7 @@ const styles: Record<string, React.CSSProperties> = {
   priceValue: {
     fontSize: "clamp(28px, 5vw, 40px)",
     fontWeight: 900,
-    color: "#0F172A",
+    color: DARK,
     letterSpacing: "-1px",
     margin: 0,
     lineHeight: 1.1,
@@ -263,7 +269,7 @@ const styles: Record<string, React.CSSProperties> = {
   metricValue: {
     fontSize: 20,
     fontWeight: 800,
-    color: "#0F172A",
+    color: DARK,
     margin: 0,
   },
   citiesWrap: {
@@ -305,7 +311,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 900,
     letterSpacing: "-1px",
     margin: "0 0 12px",
-    color: "#0F172A",
+    color: DARK,
   },
   sectionSub: {
     fontSize: 16,
@@ -344,7 +350,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 18,
     fontWeight: 800,
     margin: "0 0 8px",
-    color: "#0F172A",
+    color: DARK,
   },
   stepText: {
     fontSize: 14,
@@ -381,7 +387,7 @@ const styles: Record<string, React.CSSProperties> = {
   trendingTitle: {
     fontSize: 17,
     fontWeight: 800,
-    color: "#0F172A",
+    color: DARK,
     margin: 0,
   },
   trendingMeta: {
@@ -396,7 +402,7 @@ const styles: Record<string, React.CSSProperties> = {
     margin: "6px 0 0",
   },
   footer: {
-    background: "#0F172A",
+    background: DARK,
     color: "#94A3B8",
     padding: "40px 0",
     marginTop: 40,
@@ -426,8 +432,43 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-function getVerdict(low: number, fixCost: number, profit: number): "SELL" | "FIX" {
-  // If fixing costs less than 30% of expected profit and profit is meaningful, FIX; else SELL.
+// Resolve condition multiplier safely from string key OR number
+function resolveConditionMultiplier(conditionKey: string): number {
+  const raw = (CONDITIONS as unknown) as Record<string, unknown>;
+
+  // Direct key hit
+  const direct = raw?.[conditionKey];
+  if (typeof direct === "number") return direct;
+
+  // Common alternate key spellings
+  const aliases: Record<string, string[]> = {
+    likeNew: ["likeNew", "like_new", "likenew", "like-new"],
+    good: ["good", "Good"],
+    fair: ["fair", "Fair"],
+    needsRepair: ["needsRepair", "needs_repair", "needsrepair", "needs-repair"],
+  };
+
+  for (const key of aliases[conditionKey] ?? [conditionKey]) {
+    const v = raw?.[key];
+    if (typeof v === "number") return v;
+  }
+
+  // Hard fallback matching the spec
+  const fallback: Record<string, number> = {
+    likeNew: 0.9,
+    good: 0.7,
+    fair: 0.45,
+    needsRepair: 0.25,
+  };
+  return fallback[conditionKey] ?? 0.7;
+}
+
+function getVerdict(
+  low: number,
+  fixCost: number,
+  profit: number
+): "SELL" | "FIX" | "DONATE" {
+  if (profit <= 25) return "DONATE";
   if (fixCost < profit * 0.35 && profit > 40) return "FIX";
   return "SELL";
 }
@@ -457,21 +498,31 @@ export default function HomePage() {
     if (!selectedState || !selectedItem) {
       return { low: 0, high: 0, profit: 0, fixCost: 0 };
     }
-    const condMultiplier =
-      (CONDITIONS as unknown as Record<string, number>)[conditionKey] ?? 0.7;
+    const condMultiplier = resolveConditionMultiplier(conditionKey);
+
+    // estimatePrice must accept string OR number per spec, but we call with number
+    // (conditionKey → resolved multiplier) for maximum compatibility.
     try {
-      return estimatePrice(
+      const result = estimatePrice(
         selectedItem.base,
         condMultiplier,
         selectedState.multiplier
       );
-    } catch {
-      // Fallback if the real signature differs slightly
       return {
-        low: selectedItem.base * 0.5,
-        high: selectedItem.base * 0.8,
-        profit: selectedItem.base * 0.5,
-        fixCost: selectedItem.base * 0.18,
+        low: Number(result?.low) || 0,
+        high: Number(result?.high) || 0,
+        profit: Number(result?.profit) || 0,
+        fixCost: Number(result?.fixCost) || 0,
+      };
+    } catch {
+      // Safe fallback so UI never crashes
+      const base = selectedItem.base;
+      const value = base * condMultiplier * selectedState.multiplier;
+      return {
+        low: value * 0.92,
+        high: value * 1.08,
+        profit: value * 0.95,
+        fixCost: base * 0.18,
       };
     }
   }, [selectedState, selectedItem, conditionKey]);
@@ -479,15 +530,20 @@ export default function HomePage() {
   const verdict = getVerdict(estimate.low, estimate.fixCost, estimate.profit);
   const tax = selectedState?.tax ?? 0;
 
+  const verdictColor =
+    verdict === "SELL" ? E : verdict === "FIX" ? "#F59E0B" : "#0284C7";
+  const verdictLabel =
+    verdict === "SELL" ? "✓ SELL" : verdict === "FIX" ? "🔧 FIX" : "💝 DONATE";
+
   return (
     <div style={styles.page}>
       <div style={styles.container}>
         {/* NAV */}
         <nav style={styles.nav}>
-          <div style={styles.logo}>
+          <a href="/" style={styles.logo}>
             <span style={styles.logoBadge}>R</span>
             ReHome
-          </div>
+          </a>
           <div style={styles.navLinks}>
             <a href="/marketplace" style={styles.navLink}>
               Marketplace
@@ -507,7 +563,7 @@ export default function HomePage() {
         {/* HERO */}
         <header style={styles.hero}>
           <h1 style={styles.h1}>
-            Don't throw it. <span style={styles.h1Accent}>ReHome it.</span>
+            Don&apos;t throw it. <span style={styles.h1Accent}>ReHome it.</span>
           </h1>
           <p style={styles.subtitle}>Turn your old stuff into cash.</p>
           <div style={styles.badgeRow}>
@@ -521,8 +577,8 @@ export default function HomePage() {
         <section style={styles.estimatorCard}>
           <h2 style={styles.cardTitle}>Instant resale estimate</h2>
           <p style={styles.cardSub}>
-            Pick your item and condition — we'll tell you whether to sell, fix,
-            or donate.
+            Pick your item and condition — we&apos;ll tell you whether to sell,
+            fix, or donate.
           </p>
 
           <div style={styles.grid2}>
@@ -568,6 +624,7 @@ export default function HomePage() {
                       ? styles.conditionBtnActive
                       : styles.conditionBtn
                   }
+                  aria-pressed={conditionKey === c.key}
                 >
                   {c.label}
                 </button>
@@ -587,10 +644,10 @@ export default function HomePage() {
               <div
                 style={{
                   ...styles.verdict,
-                  background: verdict === "SELL" ? E : "#F59E0B",
+                  background: verdictColor,
                 }}
               >
-                {verdict === "SELL" ? "✓ SELL" : "🔧 FIX"}
+                {verdictLabel}
               </div>
             </div>
 
@@ -732,7 +789,7 @@ export default function HomePage() {
             ReHome
           </div>
           <p style={styles.footerText}>
-            © {new Date().getFullYear()} ReHome · Don't throw it. ReHome it.
+            © {new Date().getFullYear()} ReHome · Don&apos;t throw it. ReHome it.
           </p>
         </div>
       </footer>

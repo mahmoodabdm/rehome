@@ -1,0 +1,1 @@
+export default function Earnings(){ return <div style={{padding:20}}><h1>Earnings - $1,240 | 12 sold</h1></div> }

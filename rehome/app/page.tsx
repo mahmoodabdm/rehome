@@ -86,6 +86,19 @@ const styles: Record<string, React.CSSProperties> = {
     background: E,
     color: "#fff",
   },
+  headerBtnActive: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 999,
+    padding: "9px 16px",
+    fontSize: 14,
+    fontWeight: 700,
+    textDecoration: "none",
+    border: `1.5px solid ${E}`,
+    background: E_LIGHT,
+    color: E_DARK,
+  },
   hero: {
     textAlign: "center" as const,
     padding: "20px 0 28px",
@@ -104,6 +117,24 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#4B5563",
     margin: 0,
     lineHeight: 1.5,
+  },
+  badgeRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 10,
+    flexWrap: "wrap" as const,
+    marginTop: 18,
+  },
+  badge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    background: E_LIGHT,
+    color: E_DARK,
+    borderRadius: 999,
+    padding: "6px 13px",
+    fontSize: 13,
+    fontWeight: 600,
   },
   card: {
     background: "#fff",
@@ -163,6 +194,11 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     cursor: "pointer",
   },
+  uploadSmall: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    margin: 0,
+  },
   hiddenInput: {
     display: "none",
   },
@@ -192,6 +228,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     cursor: "pointer",
     backdropFilter: "blur(6px)",
+  },
+  previewLabel: {
+    position: "absolute" as const,
+    bottom: 12,
+    left: 12,
+    background: "rgba(255,255,255,0.92)",
+    color: DARK,
+    borderRadius: 999,
+    padding: "6px 12px",
+    fontSize: 12,
+    fontWeight: 700,
   },
   resultCard: {
     marginTop: 20,
@@ -243,6 +290,32 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     color: "#4B5563",
     lineHeight: 1.6,
+  },
+  metricsRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: 12,
+    marginTop: 16,
+  },
+  metricBox: {
+    background: "#F9FAFB",
+    borderRadius: 12,
+    padding: "12px 14px",
+    border: "1px solid #F1F5F9",
+  },
+  metricLabel: {
+    fontSize: 11,
+    fontWeight: 700,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.4px",
+    color: "#6B7280",
+    margin: "0 0 4px",
+  },
+  metricValue: {
+    fontSize: 17,
+    fontWeight: 800,
+    color: DARK,
+    margin: 0,
   },
   actions: {
     display: "flex",
@@ -397,6 +470,9 @@ export default function Scan() {
     setResult(null);
   }
 
+  const profitLow = result ? Math.round(result.priceLow * 0.95) : 0;
+  const profitHigh = result ? Math.round(result.priceHigh * 0.95) : 0;
+
   return (
     <div style={styles.page}>
       <div style={styles.container}>
@@ -409,6 +485,9 @@ export default function Scan() {
           <div style={styles.headerActions}>
             <a href="/" style={styles.headerBtn}>
               Home
+            </a>
+            <a href="/scan" style={styles.headerBtnActive}>
+              📸 Scan
             </a>
             <a href="/marketplace" style={styles.headerBtnPrimary}>
               Marketplace
@@ -424,6 +503,11 @@ export default function Scan() {
           <p style={styles.sub}>
             Take a photo — our AI estimates the resale value instantly.
           </p>
+          <div style={styles.badgeRow}>
+            <span style={styles.badge}>💵 Free to scan</span>
+            <span style={styles.badge}>⚡ Instant result</span>
+            <span style={styles.badge}>🇺🇸 All 50 states</span>
+          </div>
         </div>
 
         {/* UPLOAD / PREVIEW */}
@@ -436,6 +520,7 @@ export default function Scan() {
                 Or choose an image from your device. JPG or PNG, any size.
               </p>
               <span style={styles.uploadBtn}>📷 Upload photo</span>
+              <p style={styles.uploadSmall}>Works on mobile camera + desktop upload</p>
               <input
                 id="scan-photo-input"
                 type="file"
@@ -451,6 +536,7 @@ export default function Scan() {
               <button type="button" style={styles.retake} onClick={reset}>
                 ✕ Retake
               </button>
+              <span style={styles.previewLabel}>✓ Photo uploaded</span>
             </div>
           )}
         </div>
@@ -474,13 +560,28 @@ export default function Scan() {
               item sells quickly and nets you the most cash after the 5% fee.
             </p>
 
+            <div style={styles.metricsRow}>
+              <div style={styles.metricBox}>
+                <p style={styles.metricLabel}>Your profit after 5% fee</p>
+                <p style={styles.metricValue}>${profitLow} – ${profitHigh}</p>
+              </div>
+              <div style={styles.metricBox}>
+                <p style={styles.metricLabel}>Demand</p>
+                <p style={styles.metricValue}>🔥 High</p>
+              </div>
+              <div style={styles.metricBox}>
+                <p style={styles.metricLabel}>Time to sell</p>
+                <p style={styles.metricValue}>~ 3-5 days</p>
+              </div>
+            </div>
+
             <div style={styles.actions}>
               <a href="/marketplace" style={styles.primaryAction}>
-                List on Marketplace
+                List on Marketplace →
               </a>
-              <a href="/" style={styles.secondaryAction}>
-                ← Back to Home
-              </a>
+              <button type="button" onClick={reset} style={styles.secondaryAction}>
+                Scan Another Item
+              </button>
             </div>
           </div>
         )}

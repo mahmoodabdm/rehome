@@ -1,0 +1,1 @@
+export default function Auth(){ return <main style={{padding:20}}><h1>Login / Signup</h1><input placeholder='Email' style={{display:'block',margin:10,padding:10}} /><input placeholder='Password' type='password' style={{display:'block',margin:10,padding:10}} /><button style={{background:'#00C853',color:'#fff',padding:'10px 20px',border:0,borderRadius:8}}>Continue</button></main> }

@@ -1,0 +1,1 @@
+export default function Scan(){ return <div style={{padding:20}}><h1>Scan - Coming from main page logic</h1><p>Use estimateItem from lib/pricing.ts</p></div> }

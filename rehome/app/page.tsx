@@ -14,636 +14,430 @@ const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: "100vh",
     background:
-      "linear-gradient(180deg, #F0FDF4 0%, #F8FAF9 260px, #F8FAF9 100%)",
+      "linear-gradient(180deg, #F0FDF4 0%, #F8FAF9 320px, #F8FAF9 100%)",
     fontFamily:
       "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     color: DARK,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "20px",
   },
   container: {
-    maxWidth: 880,
-    margin: "0 auto",
-    padding: "0 20px 60px",
+    width: "100%",
+    maxWidth: 440,
   },
   header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "18px 0",
-    gap: 12,
-    flexWrap: "wrap" as const,
+    textAlign: "center" as const,
+    marginBottom: 20,
   },
   brand: {
-    display: "flex",
+    display: "inline-flex",
     alignItems: "center",
     gap: 10,
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 800,
-    letterSpacing: "-0.4px",
+    letterSpacing: "-0.5px",
     color: DARK,
     textDecoration: "none",
   },
   brandBadge: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     borderRadius: 10,
     background: E,
     color: "#fff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 800,
-  },
-  headerActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    flexWrap: "wrap" as const,
-  },
-  headerBtn: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    borderRadius: 999,
-    padding: "9px 16px",
-    fontSize: 14,
-    fontWeight: 600,
-    textDecoration: "none",
-    border: "1.5px solid #E5E7EB",
-    background: "#fff",
-    color: "#374151",
-  },
-  headerBtnPrimary: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    borderRadius: 999,
-    padding: "9px 16px",
-    fontSize: 14,
-    fontWeight: 700,
-    textDecoration: "none",
-    border: "none",
-    background: E,
-    color: "#fff",
-  },
-  headerBtnActive: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    borderRadius: 999,
-    padding: "9px 16px",
-    fontSize: 14,
-    fontWeight: 700,
-    textDecoration: "none",
-    border: `1.5px solid ${E}`,
-    background: E_LIGHT,
-    color: E_DARK,
-  },
-  hero: {
-    textAlign: "center" as const,
-    padding: "20px 0 28px",
-  },
-  h1: {
-    fontSize: "clamp(28px, 5vw, 44px)",
-    fontWeight: 900,
-    letterSpacing: "-1.2px",
-    lineHeight: 1.1,
-    margin: "0 0 10px",
-    color: DARK,
-  },
-  accent: { color: E },
-  sub: {
-    fontSize: "clamp(15px, 2vw, 17px)",
-    color: "#4B5563",
-    margin: 0,
-    lineHeight: 1.5,
-  },
-  badgeRow: {
-    display: "flex",
-    justifyContent: "center",
-    gap: 10,
-    flexWrap: "wrap" as const,
-    marginTop: 18,
-  },
-  badge: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    background: E_LIGHT,
-    color: E_DARK,
-    borderRadius: 999,
-    padding: "6px 13px",
-    fontSize: 13,
-    fontWeight: 600,
   },
   card: {
     background: "#fff",
     borderRadius: 20,
-    padding: 22,
+    padding: 28,
     boxShadow: cardShadow,
     border: "1px solid #F1F5F9",
   },
-  uploadLabel: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center" as const,
-    gap: 12,
-    cursor: "pointer",
-    borderRadius: 20,
-    border: `2px dashed ${E}55`,
-    background: "#F6FEFA",
-    padding: "56px 24px",
-    minHeight: 260,
-    transition: "background 0.15s ease, border-color 0.15s ease",
-  },
-  camCircle: {
-    width: 84,
-    height: 84,
-    borderRadius: "50%",
-    background: E_LIGHT,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 40,
-  },
-  uploadTitle: {
-    fontSize: 18,
-    fontWeight: 800,
-    color: DARK,
-    margin: 0,
-  },
-  uploadHint: {
-    fontSize: 14,
-    color: "#6B7280",
-    margin: 0,
-    maxWidth: 320,
-  },
-  uploadBtn: {
-    marginTop: 6,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    background: E,
-    color: "#fff",
-    border: "none",
-    borderRadius: 999,
-    padding: "12px 22px",
-    fontSize: 15,
-    fontWeight: 700,
-    cursor: "pointer",
-  },
-  uploadSmall: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    margin: 0,
-  },
-  hiddenInput: {
-    display: "none",
-  },
-  previewWrap: {
-    position: "relative" as const,
-    borderRadius: 20,
-    overflow: "hidden",
-    border: "1px solid #F1F5F9",
-    background: "#0F172A",
-  },
-  previewImg: {
-    display: "block",
-    width: "100%",
-    maxHeight: 420,
-    objectFit: "cover" as const,
-  },
-  retake: {
-    position: "absolute" as const,
-    top: 12,
-    right: 12,
-    background: "rgba(15,23,42,0.75)",
-    color: "#fff",
-    border: "none",
-    borderRadius: 999,
-    padding: "8px 14px",
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: "pointer",
-    backdropFilter: "blur(6px)",
-  },
-  previewLabel: {
-    position: "absolute" as const,
-    bottom: 12,
-    left: 12,
-    background: "rgba(255,255,255,0.92)",
-    color: DARK,
-    borderRadius: 999,
-    padding: "6px 12px",
-    fontSize: 12,
-    fontWeight: 700,
-  },
-  resultCard: {
-    marginTop: 20,
-    background: "#fff",
-    borderRadius: 20,
-    padding: 22,
-    boxShadow: cardShadow,
-    border: "1px solid #F1F5F9",
-  },
-  resultHead: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 16,
-    flexWrap: "wrap" as const,
-  },
-  resultLabel: {
-    fontSize: 12,
-    fontWeight: 700,
-    letterSpacing: "0.5px",
-    textTransform: "uppercase" as const,
-    color: "#6B7280",
-    margin: "0 0 4px",
-  },
-  resultPrice: {
-    fontSize: "clamp(26px, 4vw, 36px)",
-    fontWeight: 900,
-    color: DARK,
-    letterSpacing: "-1px",
-    margin: 0,
-    lineHeight: 1.1,
-  },
-  verdict: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    background: E,
-    color: "#fff",
-    borderRadius: 999,
-    padding: "10px 18px",
-    fontSize: 15,
-    fontWeight: 800,
-    letterSpacing: "0.3px",
-  },
-  resultNote: {
-    marginTop: 14,
-    paddingTop: 14,
-    borderTop: "1px solid #EEF2F6",
-    fontSize: 14,
-    color: "#4B5563",
-    lineHeight: 1.6,
-  },
-  metricsRow: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-    gap: 12,
-    marginTop: 16,
-  },
-  metricBox: {
-    background: "#F9FAFB",
-    borderRadius: 12,
-    padding: "12px 14px",
-    border: "1px solid #F1F5F9",
-  },
-  metricLabel: {
-    fontSize: 11,
-    fontWeight: 700,
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.4px",
-    color: "#6B7280",
-    margin: "0 0 4px",
-  },
-  metricValue: {
-    fontSize: 17,
-    fontWeight: 800,
-    color: DARK,
-    margin: 0,
-  },
-  actions: {
-    display: "flex",
-    gap: 12,
-    marginTop: 18,
-    flexWrap: "wrap" as const,
-  },
-  primaryAction: {
-    flex: "1 1 200px",
-    textAlign: "center" as const,
-    background: E,
-    color: "#fff",
-    border: "none",
-    borderRadius: 12,
-    padding: "13px 20px",
-    fontSize: 15,
+  backLink: {
+    color: E_DARK,
     fontWeight: 700,
     textDecoration: "none",
-    cursor: "pointer",
+    fontSize: 14,
   },
-  secondaryAction: {
-    flex: "1 1 200px",
-    textAlign: "center" as const,
-    background: "#fff",
-    color: "#374151",
-    border: "1.5px solid #E5E7EB",
-    borderRadius: 12,
-    padding: "13px 20px",
-    fontSize: 15,
-    fontWeight: 700,
-    textDecoration: "none",
-    cursor: "pointer",
-  },
-  stepsSection: {
-    marginTop: 40,
-  },
-  sectionTitle: {
-    fontSize: "clamp(20px, 3vw, 26px)",
+  title: {
+    fontSize: 28,
     fontWeight: 900,
     letterSpacing: "-0.6px",
-    textAlign: "center" as const,
-    margin: "0 0 20px",
+    margin: "14px 0 6px",
     color: DARK,
   },
-  stepsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: 14,
+  subtitle: {
+    color: "#6B7280",
+    fontSize: 14,
+    lineHeight: 1.5,
+    margin: "0 0 20px",
   },
-  stepCard: {
+  toggleWrap: {
+    display: "flex",
+    background: "#F3F4F6",
+    borderRadius: 999,
+    padding: 4,
+    marginBottom: 20,
+  },
+  toggleBtn: {
+    flex: 1,
+    border: "none",
+    borderRadius: 999,
+    padding: "10px 12px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    background: "transparent",
+    color: "#6B7280",
+  },
+  toggleBtnActive: {
+    flex: 1,
+    border: "none",
+    borderRadius: 999,
+    padding: "10px 12px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
     background: "#fff",
-    borderRadius: 16,
-    padding: 18,
-    boxShadow: cardShadow,
-    border: "1px solid #F1F5F9",
+    color: DARK,
+    boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+  },
+  socialBtn: {
+    width: "100%",
+    padding: "13px 16px",
+    borderRadius: 12,
+    border: "1.5px solid #E5E7EB",
+    background: "#fff",
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginBottom: 10,
+  },
+  socialBtnFacebook: {
+    width: "100%",
+    padding: "13px 16px",
+    borderRadius: 12,
+    border: "none",
+    background: "#1877F2",
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginBottom: 18,
+  },
+  divider: {
     display: "flex",
     alignItems: "center",
     gap: 12,
+    marginBottom: 18,
   },
-  stepNum: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    background: E_LIGHT,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    background: "#EEF2F6",
+  },
+  dividerText: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    fontWeight: 600,
+  },
+  label: {
+    display: "block",
+    fontSize: 12,
+    fontWeight: 700,
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.5px",
+    color: "#6B7280",
+    marginBottom: 7,
+  },
+  input: {
+    width: "100%",
+    padding: "13px 14px",
+    borderRadius: 12,
+    border: "1.5px solid #E5E7EB",
+    fontSize: 15,
+    color: DARK,
+    background: "#fff",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    marginBottom: 14,
+  },
+  passwordWrap: {
+    position: "relative" as const,
+  },
+  showBtn: {
+    position: "absolute" as const,
+    right: 10,
+    top: 12,
+    background: "transparent",
+    border: "none",
     color: E_DARK,
+    fontSize: 13,
+    fontWeight: 700,
+    cursor: "pointer",
+  },
+  rowBetween: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    fontSize: 16,
-    fontWeight: 900,
-    flexShrink: 0,
+    justifyContent: "space-between",
+    marginBottom: 16,
+    fontSize: 13,
   },
-  stepTitle: {
+  checkboxLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: 7,
+    color: "#374151",
+    cursor: "pointer",
+  },
+  forgot: {
+    color: E_DARK,
+    fontWeight: 700,
+    textDecoration: "none",
+    cursor: "pointer",
+  },
+  submitBtn: {
+    width: "100%",
+    padding: "14px 16px",
+    borderRadius: 12,
+    background: E,
+    color: "#fff",
+    border: "none",
     fontSize: 15,
     fontWeight: 800,
-    color: DARK,
-    margin: 0,
+    cursor: "pointer",
   },
-  stepText: {
-    fontSize: 13,
-    color: "#6B7280",
-    margin: "2px 0 0",
-  },
-  whySection: {
-    marginTop: 40,
-  },
-  whyGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: 14,
-  },
-  whyCard: {
-    background: "#fff",
-    borderRadius: 18,
-    padding: 20,
-    boxShadow: cardShadow,
-    border: "1px solid #F1F5F9",
-  },
-  whyIcon: {
-    width: 44,
-    height: 44,
+  errorBox: {
+    background: "#FEF2F2",
+    color: "#DC2626",
+    border: "1px solid #FECACA",
     borderRadius: 12,
-    background: E_LIGHT,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 22,
-    marginBottom: 12,
-  },
-  whyTitle: {
-    fontSize: 16,
-    fontWeight: 800,
-    color: DARK,
-    margin: "0 0 4px",
-  },
-  whyText: {
+    padding: "10px 12px",
     fontSize: 13,
+    marginBottom: 14,
+  },
+  successBox: {
+    background: E_LIGHT,
+    color: E_DARK,
+    border: `1px solid ${E}33`,
+    borderRadius: 12,
+    padding: "10px 12px",
+    fontSize: 13,
+    marginBottom: 14,
+  },
+  switchText: {
+    textAlign: "center" as const,
+    marginTop: 18,
+    fontSize: 14,
+    color: "#4B5563",
+  },
+  switchLink: {
+    color: E_DARK,
+    fontWeight: 800,
+    cursor: "pointer",
+  },
+  trustRow: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 14,
+    marginTop: 16,
+    flexWrap: "wrap" as const,
+  },
+  trustItem: {
+    fontSize: 12,
     color: "#6B7280",
-    margin: 0,
-    lineHeight: 1.55,
+    fontWeight: 600,
   },
   footer: {
-    marginTop: 48,
     textAlign: "center" as const,
+    marginTop: 16,
     fontSize: 12,
     color: "#9CA3AF",
   },
 };
 
-export default function Scan() {
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [result, setResult] = useState<{
-    priceLow: number;
-    priceHigh: number;
-    verdict: "SELL" | "FIX" | "DONATE";
-  } | null>(null);
+export default function Auth() {
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPhoto(typeof reader.result === "string" ? reader.result : null);
-      // Simple mock AI result — same values as before, unchanged logic
-      setResult({ priceLow: 380, priceHigh: 450, verdict: "SELL" });
-    };
-    reader.readAsDataURL(file);
+  function handleSubmit() {
+    setError("");
+    setSuccess("");
+
+    if (!email.includes("@")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (mode === "signup" && !name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (mode === "login") {
+      setSuccess("Welcome back! Logging you in...");
+      setTimeout(() => {
+        window.location.href = "/marketplace";
+      }, 800);
+    } else {
+      setSuccess("Account created! Check your email to verify, then you can list and sell.");
+      setTimeout(() => {
+        window.location.href = "/marketplace";
+      }, 1200);
+    }
   }
-
-  function reset() {
-    setPhoto(null);
-    setResult(null);
-  }
-
-  const profitLow = result ? Math.round(result.priceLow * 0.95) : 0;
-  const profitHigh = result ? Math.round(result.priceHigh * 0.95) : 0;
 
   return (
     <div style={styles.page}>
       <div style={styles.container}>
-        {/* HEADER */}
-        <header style={styles.header}>
+        <div style={styles.header}>
           <a href="/" style={styles.brand}>
             <span style={styles.brandBadge}>R</span>
             ReHome
           </a>
-          <div style={styles.headerActions}>
-            <a href="/" style={styles.headerBtn}>
-              Home
-            </a>
-            <a href="/scan" style={styles.headerBtnActive}>
-              📸 Scan
-            </a>
-            <a href="/marketplace" style={styles.headerBtnPrimary}>
-              Marketplace
-            </a>
-          </div>
-        </header>
-
-        {/* HERO */}
-        <div style={styles.hero}>
-          <h1 style={styles.h1}>
-            Scan Your <span style={styles.accent}>Item</span>
-          </h1>
-          <p style={styles.sub}>
-            Take a photo — our AI estimates the resale value instantly.
-          </p>
-          <div style={styles.badgeRow}>
-            <span style={styles.badge}>💵 Free to scan</span>
-            <span style={styles.badge}>⚡ Instant result</span>
-            <span style={styles.badge}>🇺🇸 All 50 states</span>
-          </div>
         </div>
 
-        {/* UPLOAD / PREVIEW */}
         <div style={styles.card}>
-          {!photo ? (
-            <label htmlFor="scan-photo-input" style={styles.uploadLabel}>
-              <div style={styles.camCircle}>📷</div>
-              <p style={styles.uploadTitle}>Click to take a photo</p>
-              <p style={styles.uploadHint}>
-                Or choose an image from your device. JPG or PNG, any size.
-              </p>
-              <span style={styles.uploadBtn}>📷 Upload photo</span>
-              <p style={styles.uploadSmall}>Works on mobile camera + desktop upload</p>
+          <a href="/" style={styles.backLink}>← Back to Home</a>
+          <h1 style={styles.title}>
+            {mode === "login" ? "Welcome back" : "Create your account"}
+          </h1>
+          <p style={styles.subtitle}>
+            {mode === "login"
+              ? "Log in to list, sell and get paid."
+              : "Free to join. Sell in 2 minutes. No credit card needed."}
+          </p>
+
+          <div style={styles.toggleWrap}>
+            <button
+              type="button"
+              onClick={() => { setMode("login"); setError(""); setSuccess(""); }}
+              style={mode === "login" ? styles.toggleBtnActive : styles.toggleBtn}
+            >
+              Log In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode("signup"); setError(""); setSuccess(""); }}
+              style={mode === "signup" ? styles.toggleBtnActive : styles.toggleBtn}
+            >
+              Sign Up Free
+            </button>
+          </div>
+
+          <button type="button" style={styles.socialBtn}>
+            <span style={{ fontSize: 18 }}>G</span> Continue with Google
+          </button>
+          <button type="button" style={styles.socialBtnFacebook}>
+            <span style={{ fontSize: 16 }}>f</span> Continue with Facebook
+          </button>
+
+          <div style={styles.divider}>
+            <div style={styles.dividerLine} />
+            <span style={styles.dividerText}>OR WITH EMAIL</span>
+            <div style={styles.dividerLine} />
+          </div>
+
+          {error && <div style={styles.errorBox}>{error}</div>}
+          {success && <div style={styles.successBox}>{success}</div>}
+
+          {mode === "signup" && (
+            <div>
+              <label style={styles.label}>Full Name</label>
               <input
-                id="scan-photo-input"
-                type="file"
-                accept="image/*"
-                onChange={handleFile}
-                style={styles.hiddenInput}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="John Smith"
+                style={styles.input}
               />
-            </label>
-          ) : (
-            <div style={styles.previewWrap}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo} alt="Scanned item" style={styles.previewImg} />
-              <button type="button" style={styles.retake} onClick={reset}>
-                ✕ Retake
-              </button>
-              <span style={styles.previewLabel}>✓ Photo uploaded</span>
             </div>
           )}
+
+          <label style={styles.label}>Email</label>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            type="email"
+            style={styles.input}
+          />
+
+          <label style={styles.label}>Password</label>
+          <div style={styles.passwordWrap}>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              type={showPassword ? "text" : "password"}
+              style={{ ...styles.input, paddingRight: 60 }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={styles.showBtn}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          <div style={styles.rowBetween}>
+            <label style={styles.checkboxLabel}>
+              <input
+                type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
+              Remember me
+            </label>
+            {mode === "login" && (
+              <span style={styles.forgot}>Forgot password?</span>
+            )}
+          </div>
+
+          <button type="button" onClick={handleSubmit} style={styles.submitBtn}>
+            {mode === "login" ? "Log In →" : "Create Account →"}
+          </button>
+
+          <p style={styles.switchText}>
+            {mode === "login" ? "No account? " : "Already have an account? "}
+            <span
+              onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setSuccess(""); }}
+              style={styles.switchLink}
+            >
+              {mode === "login" ? "Sign up free" : "Log in"}
+            </span>
+          </p>
+
+          <div style={styles.trustRow}>
+            <span style={styles.trustItem}>🔒 Secure</span>
+            <span style={styles.trustItem}>💵 Free to join</span>
+            <span style={styles.trustItem}>🇺🇸 All 50 states</span>
+          </div>
         </div>
-
-        {/* RESULT */}
-        {photo && result && (
-          <div style={styles.resultCard}>
-            <div style={styles.resultHead}>
-              <div>
-                <p style={styles.resultLabel}>AI estimated value</p>
-                <p style={styles.resultPrice}>
-                  ${result.priceLow} – ${result.priceHigh}
-                </p>
-              </div>
-              <span style={styles.verdict}>✓ {result.verdict}</span>
-            </div>
-
-            <p style={styles.resultNote}>
-              Based on similar listings in your area, we recommend{" "}
-              <strong style={{ color: E_DARK }}>{result.verdict}</strong> — this
-              item sells quickly and nets you the most cash after the 5% fee.
-            </p>
-
-            <div style={styles.metricsRow}>
-              <div style={styles.metricBox}>
-                <p style={styles.metricLabel}>Your profit after 5% fee</p>
-                <p style={styles.metricValue}>${profitLow} – ${profitHigh}</p>
-              </div>
-              <div style={styles.metricBox}>
-                <p style={styles.metricLabel}>Demand</p>
-                <p style={styles.metricValue}>🔥 High</p>
-              </div>
-              <div style={styles.metricBox}>
-                <p style={styles.metricLabel}>Time to sell</p>
-                <p style={styles.metricValue}>~ 3-5 days</p>
-              </div>
-            </div>
-
-            <div style={styles.actions}>
-              <a href="/marketplace" style={styles.primaryAction}>
-                List on Marketplace →
-              </a>
-              <button type="button" onClick={reset} style={styles.secondaryAction}>
-                Scan Another Item
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEPS */}
-        <section style={styles.stepsSection}>
-          <h2 style={styles.sectionTitle}>How it works</h2>
-          <div style={styles.stepsGrid}>
-            <div style={styles.stepCard}>
-              <div style={styles.stepNum}>1</div>
-              <div>
-                <p style={styles.stepTitle}>Take Photo</p>
-                <p style={styles.stepText}>Snap a clear picture of your item</p>
-              </div>
-            </div>
-            <div style={styles.stepCard}>
-              <div style={styles.stepNum}>2</div>
-              <div>
-                <p style={styles.stepTitle}>AI Estimates</p>
-                <p style={styles.stepText}>Get an instant resale value</p>
-              </div>
-            </div>
-            <div style={styles.stepCard}>
-              <div style={styles.stepNum}>3</div>
-              <div>
-                <p style={styles.stepTitle}>List &amp; Sell</p>
-                <p style={styles.stepText}>Post it and get paid locally</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* WHY */}
-        <section style={styles.whySection}>
-          <h2 style={styles.sectionTitle}>Why Scan with ReHome?</h2>
-          <div style={styles.whyGrid}>
-            <div style={styles.whyCard}>
-              <div style={styles.whyIcon}>💵</div>
-              <p style={styles.whyTitle}>Free</p>
-              <p style={styles.whyText}>
-                Scanning and estimating costs nothing. We only take 5% when you
-                sell.
-              </p>
-            </div>
-            <div style={styles.whyCard}>
-              <div style={styles.whyIcon}>⚡</div>
-              <p style={styles.whyTitle}>Instant</p>
-              <p style={styles.whyText}>
-                Get a price range and SELL / FIX / DONATE verdict in under a
-                second.
-              </p>
-            </div>
-            <div style={styles.whyCard}>
-              <div style={styles.whyIcon}>🎯</div>
-              <p style={styles.whyTitle}>Accurate</p>
-              <p style={styles.whyText}>
-                Based on real listings across all 50 states, adjusted for your
-                local market.
-              </p>
-            </div>
-          </div>
-        </section>
 
         <p style={styles.footer}>
           © {new Date().getFullYear()} ReHome · Don&apos;t throw it. ReHome it.
